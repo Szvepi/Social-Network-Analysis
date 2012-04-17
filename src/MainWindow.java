@@ -1,4 +1,5 @@
 import org.graphstream.graph.Graph;
+
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.stream.file.FileSinkDGS;
@@ -7,9 +8,14 @@ import org.graphstream.stream.file.FileSinkImages.LayoutPolicy;
 import org.graphstream.stream.file.FileSinkImages.OutputType;
 import org.graphstream.stream.file.FileSinkImages.Resolutions;
 import org.graphstream.stream.file.FileSourceDGS;
+import org.graphstream.ui.swingViewer.View;
+import org.graphstream.ui.swingViewer.Viewer;
 
 
-import javax.swing.JFrame;
+import javax.swing.*;
+
+import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.io.IOException;
 
 
@@ -23,46 +29,44 @@ public class MainWindow extends JFrame {
 	private ViewGraph viewGraph;
 	private Viewer viewer;
 	private Graph graph = new SingleGraph("embedded");
+	private JFrame frame = new JFrame("alma");
+	private JPanel panelLeft = new JPanel();
 
 	/**
 	 * Create the frame.
 	 */
 	public MainWindow() {
 		
-		/*System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		viewGraph = new ViewGraph();
-		viewer = viewGraph.getGraph().display(true);
+		//viewer = viewGraph.getGraph().display(true);
 		
-		createPicture("sample.JPG");
-		writeDGS("proba.dgs");
-		readDGS("proba.dgs");
-		viewGraph.writeCSV("proba.csv");*/
-		/*readDGS("proba.dgs");	//itt meg vmi nem jo
-		try {
+		//createPicture("sample.JPG");
+		//writeDGS("proba.dgs");
+		//readDGS("proba.dgs");
+		//viewGraph.writeCSV("proba.csv");
+		//readDGS("proba.dgs");	//itt meg vmi nem jo
+		/*try {
 			graph.read("proba.dgs");
 		} catch (Exception e) {
 			System.out.println("olvasasi hiba!");
 		}*/
 		
-		Node A = graph.addNode("A");
-		Node B = graph.addNode("B");
-		Node E = graph.addNode("E");
-		Node C = graph.addNode("C");
-		Node D = graph.addNode("D");
 		
-		/*A.setAttribute("xy", 20,20);
-		B.setAttribute("xy", 40,20);
-		C.setAttribute("xy", 60,20);
-		D.setAttribute("xy", 80,20);
-		E.setAttribute("xy", 200,20);*/
+		//panelLeft.setBounds(10, 10, (int)(frame.getSize().width*0.7), (int)(frame.getSize().height-60));
+		//frame.add(panelLeft);
 		
+		Viewer viewer = viewGraph.getGraph().display();
+		View view = viewer.getDefaultView();
+		
+		GridLayout grid = new GridLayout(0,2);
+		
+		
+		frame.add(view);
+		frame.setLayout(grid);
+		frame.setVisible(true);
+		frame.setSize(Toolkit.getDefaultToolkit().getScreenSize().width, Toolkit.getDefaultToolkit().getScreenSize().height-40);
 
-		graph.addEdge("AB", "A", "B");
-		graph.addEdge("AE", "A", "E");
-		graph.addEdge("AC", "A", "C");
-		graph.addEdge("AD", "A", "D");
-		graph.display();
-		
 	}
 	
 	//create picture 
