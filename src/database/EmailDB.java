@@ -17,8 +17,7 @@ public class EmailDB {
 	public EmailDB(PSTReader emailList) {
 		try {
 			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-			
-			
+						
 			Properties props = new Properties();
 			props.put("create", "true");
 			props.put("user", USER);

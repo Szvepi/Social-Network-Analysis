@@ -27,7 +27,7 @@ public class ViewGraph {
 	private boolean stepByStep = true;
 	private Random numGen = new Random();
 	
-	public ViewGraph() {
+	public ViewGraph(String file) {
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		email = new PSTReader();	//hogyan tudom altalanositani, ne csak PSTReader-el mukodjon?
 		graph = new SingleGraph("Emails");
@@ -36,7 +36,7 @@ public class ViewGraph {
 		//email.read("junk_email2.pst");
 		//email.read("valogatott.pst");
 		//email.read("november.pst");
-		email.read("otthon2.pst");
+		email.read(file);
 		graph.setAutoCreate(true);
         graph.setStrict(false);
         
@@ -293,7 +293,6 @@ public class ViewGraph {
 				csvOutput.write("AVG Degree Deviation");
 				csvOutput.write("Density");
 				csvOutput.write("Diameter");
-				//csvOutput.write("Clustering Coefficient");
 				csvOutput.write("AVG Clustering Coefficient");
 				csvOutput.write("Component Number");
 				csvOutput.write("Biggest Component Number");
