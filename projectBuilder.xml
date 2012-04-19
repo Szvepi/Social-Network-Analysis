@@ -1,0 +1,29 @@
+<project name="szakdolgozat" default="genjar" basedir=".">
+<description>
+build.xml file
+</description>
+<!-- set global properties for this build -->
+<property name="jarname" value="${ant.project.name}"/>
+<property name="src" location="src"/>
+<property name="bin" location="bin"/>
+<target name="init">
+<!--
+Create the build directory structure used by compile
+-->
+<mkdir dir="${bin}"/>
+</target>
+<target name="compile" depends="init" description="compile the source">
+<!-- Compile the java code from ${src} into ${bin} -->
+<javac srcdir="${src}" destdir="${bin}"/>
+</target>
+<target name="genjar" depends="compile" description="generate the jarfile">
+<!--
+Put everything in ${bin} into the ${jarname}.jar file
+-->
+<jar jarfile="${jarname}.jar" basedir="${bin}"/>
+</target>
+<target name="clean" description="clean up">
+<!-- Delete the ${bin} directory tree -->
+<delete dir="${bin}"/>
+</target>
+</project>

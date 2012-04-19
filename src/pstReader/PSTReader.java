@@ -4,17 +4,28 @@ import java.util.*;
 
 import com.pff.*;
 
+/**
+ * Read datas from .pst file.
+ *
+ * @version  0.2
+ * @author   Istvan Fodor
+ */
 public class PSTReader extends Reader {
 	
 		private PSTFile pstFile;
 		private List<PSTMessage> emails;
 		private Vector<PSTFolder> childFolders;
 		
+		/**
+		 * Initialized new array list
+		 */
 		public PSTReader() {
 			emails = new ArrayList<PSTMessage>();
 		}
 	
-		//read the email's from files and put to list 
+		/** 
+		 * read the email's from files and put to list 
+		 */
 		public void read(Vector<String> fileName) {
 			try {
 				for ( int i=0; i < fileName.size(); i++) {
@@ -26,7 +37,10 @@ public class PSTReader extends Reader {
 			}
 		}
 		
-		//read the email's from file and put to list 
+		/** 
+		 * read the email's from file and put to list
+		 * @param fileName
+		 */
 		public void read(String fileName) {
 			try {
 				pstFile = new PSTFile(fileName);
@@ -36,22 +50,32 @@ public class PSTReader extends Reader {
 			}
 		}
 			
-		//get the email's subject
+		/** 
+		 * get the email's subject
+		 */
 		public String getSubject(int number) {
 			return emails.get(number).getSubject();
 		}
 		
-		//return the sender's email address
+		/** 
+		 * return the sender's email address
+		 * @param number
+		 * @return
+		 */
 		public String getSenderEmail(int number) {
 			return emails.get(number).getSenderEmailAddress();
 		}
 			
-		//get the email's sender
+		/** 
+		 * get the email's sender
+		 */
 		public String getSender(int number) {
 			return emails.get(number).getSenderName();
 		}
 			
-		//get the email's receiver
+		/** 
+		 * get the email's receiver
+		 */
 		public Vector<String> getReceived(int number) {
 			Vector<String> cimzettek = new Vector<String>();
 			try {
@@ -67,32 +91,44 @@ public class PSTReader extends Reader {
 			return cimzettek;
 		}
 			
-		//get the email's sending time
+		/**  
+		 * get the email's sending time
+		 */
 		public Date getTime(int number) {
 			return emails.get(number).getMessageDeliveryTime();
 		}
 			
-		//get the email's body
+		/** 
+		 * get the email's body 
+		 */
 		public String getBody(int number) {
 			return emails.get(number).getBody();
 		}
 			
-		//list size
+		/**  
+		 * return list size
+		 */
 		public int listSize() {
 			return emails.size();
 		}
 		
-		//list is empty?
+		/** 
+		 * list is empty? 
+		 */
 		public boolean isEmpty() {
 			return emails.isEmpty();
 		}
 		
-		//get the list's element
+		/** 
+		 * get the list's element
+		 */
 		public PSTMessage getEmail(int number) {
 			return emails.get(number);
 		}
 		
-		//get names of recipient
+		/** 
+		 * get names of recipient 
+		 */
 		public Vector<String> getRecipient(int number) {
 			Vector<String> cimzettek = new Vector<String>();
 			try {
@@ -107,7 +143,9 @@ public class PSTReader extends Reader {
 			return cimzettek;
 		}
 		
-		//upload the list
+		/**
+		 *	upload the list 
+		 */
 		public void processFolder(Object folders) 
 		{
 			try {

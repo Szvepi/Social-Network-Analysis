@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 
 import org.graphstream.ui.swingViewer.*;
@@ -52,6 +53,7 @@ public class MainWindow extends JFrame {
 	private JPanel leftPanel;
 	private JPanel rightPanel;
 	private JPanel statisticsPanel;
+	private JPanel dataPanel;
 	private GridLayout mainGrid;
 	private GridLayout subGrid;
 	private GridLayout statisticsGrid;
@@ -68,6 +70,7 @@ public class MainWindow extends JFrame {
 	private JLabel ComponentNumber;
 	private JLabel BiggestComponentNumber;
 	private List<JLabel> labels;
+	private JTable table;
 
 
 	/**
@@ -81,6 +84,7 @@ public class MainWindow extends JFrame {
 		leftPanel = new JPanel();
 		rightPanel = new JPanel();
 		statisticsPanel = new JPanel();
+		dataPanel = new JPanel();
 		
 		menuBar = new JMenuBar();
 		fileMenu = new JMenu("File");
@@ -110,7 +114,7 @@ public class MainWindow extends JFrame {
 		menuBar.add(helpMenu);
 		
 		tab.addTab("Statistics", statisticsPanel);
-		tab.addTab("Datas", new JPanel());
+		tab.addTab("Datas", dataPanel);
 		
 		//set the statitics labels
 		numberOfNodes = new JLabel("    Number of nodes:");
@@ -166,6 +170,11 @@ public class MainWindow extends JFrame {
 					view = viewer.getDefaultView();
 					view.setSize(leftPanel.getSize());
 					//labels.get(0).setText(String.valueOf((viewGraph.getNodeCount())));
+					/*for ( int i = 0; i< viewGraph.getDB().getData().size(); i++) {
+						System.out.println(viewGraph.getDB().getData().elementAt(i));
+					}*/
+					//table = new JTable(viewGraph.getDB().getData(), viewGraph.getDB().getColumnName());	
+					//dataPanel.add(table);
 					leftPanel.add(view);
 				} else {				
 				}
@@ -267,7 +276,26 @@ public class MainWindow extends JFrame {
 		statisticsPanel.add(BiggestComponentNumber);
 		statisticsPanel.add(labels.get(10));
 		
-		
+		String[] columnNames = {"First Name",
+                "Last Name",
+                "Sport",
+                "# of Years",
+                "Vegetarian"};
+		Object[][] data = {
+			    {"Kathy", "Smith",
+			     "Snowboarding", new Integer(5), new Boolean(false)},
+			    {"John", "Doe",
+			     "Rowing", new Integer(3), new Boolean(true)},
+			    {"Sue", "Black",
+			     "Knitting", new Integer(2), new Boolean(false)},
+			    {"Jane", "White",
+			     "Speed reading", new Integer(20), new Boolean(true)},
+			    {"Joe", "Brown",
+			     "Pool", new Integer(10), new Boolean(false)}
+			};
+		JTable table = new JTable(data, columnNames);	
+		table.setSize(600, 600);
+		dataPanel.add(table);
 	}
 	
 	public String getExtension(File f) {

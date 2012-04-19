@@ -1,6 +1,7 @@
 package Graph;
 
 import java.util.*;
+
 import java.io.*;
 
 import com.csvreader.CsvReader;
@@ -19,6 +20,15 @@ import org.graphstream.ui.j2dviewer.J2DGraphRenderer;
 
 import pstReader.*;
 
+/**
+ * This class create the new graph, and put data to it. 
+ * You can find some statistic algorithm in this class.
+ * You can write these statistics to a file.
+ *
+ * @version  0.3
+ * @author   Istvan Fodor
+ */
+
 public class ViewGraph {
 	
 	private Graph graph;
@@ -27,15 +37,16 @@ public class ViewGraph {
 	private boolean stepByStep = true;
 	private Random numGen = new Random();
 	
+	/**
+	 * Initialized new PSTReader, SingleGraph.
+	 * addEdge() function create the graph then set a new style.
+	 * @param file
+	 */
 	public ViewGraph(String file) {
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		email = new PSTReader();	//hogyan tudom altalanositani, ne csak PSTReader-el mukodjon?
 		graph = new SingleGraph("Emails");
 		
-		
-		//email.read("junk_email2.pst");
-		//email.read("valogatott.pst");
-		//email.read("november.pst");
 		email.read(file);
 		graph.setAutoCreate(true);
         graph.setStrict(false);
@@ -52,7 +63,9 @@ public class ViewGraph {
         db = new EmailDB(email);
 	}
 	
-	//add edge for graph
+	/**
+	 * add edge to graph
+	 */
 	private void addEdge() {
 		for ( int i = 0; i < email.listSize(); i++) {
         	Vector<String> receiver = new Vector<String>();
@@ -78,6 +91,10 @@ public class ViewGraph {
         }
 	}
 	
+	/**
+	 * Add different colors to nodes so the groups separated inside the graph
+	 * @param nodeID
+	 */
 	public void networkCommunityDetectiont(int nodeID) {
 		int rgb1 = numGen.nextInt(256);
 		int rgb2 = numGen.nextInt(256);
@@ -110,12 +127,25 @@ public class ViewGraph {
 	}
 
 	
-	//get the graph
+	/**
+	 * get the graph
+	 * @return Graph
+	 */
 	public Graph getGraph() {
 		return graph;
 	}
 	
-	//set the graph style
+	/**
+	 * get the DB
+	 * @return EmailDB
+	 */
+	public EmailDB getDB() {
+		return db;
+	}
+	
+	/**
+	 * Set the graph style
+	 */
 	public void setStyle() {
 		for (Node node : graph) {
 			//node.addAttribute("ui.emailCount", pair.get(node.getId()));
@@ -144,17 +174,26 @@ public class ViewGraph {
         try { Thread.sleep(500); } catch (Exception e) {System.out.println(e.getMessage());}
     }
 	
-	//return number of edge
+	/**
+	 * return number of edge
+	 * @return integer
+	 */
 	public int getEdgeCount() {
 		return graph.getEdgeCount();
 	}
 	
-	//return number of node
+	/**
+	 * return number of node
+	 * @return integer
+	 */
 	public int getNodeCount() {
 		return graph.getNodeCount();
 	}
 	
-	//Betweenness Centrality Algorithms AVG
+	/**
+	 * Betweenness Centrality Algorithms AVG
+	 * @return double
+	 */
 	public double BetweennessAVG() {
 		int piece = 0;
 		double value = 0;
@@ -172,7 +211,10 @@ public class ViewGraph {
 		return value/piece;
 	}
 	
-	//Betweenness Centrality Algorithms MAX
+	/**
+	 * Betweenness Centrality Algorithms MAX
+	 * @return double
+	 */
 	public double BetweennessMAX() {
 		double MAX = -1;
 		BetweennessCentrality bcb = new BetweennessCentrality();
@@ -189,7 +231,10 @@ public class ViewGraph {
 		return MAX;
 	}
 	
-	//Betweenness Centrality Algorithms MIN
+	/**
+	 * Betweenness Centrality Algorithms MIN
+	 * @return double
+	 */
 	public double BetweennessMIN() {
 		double MIN = 100000;
 		BetweennessCentrality bcb = new BetweennessCentrality();
@@ -206,48 +251,75 @@ public class ViewGraph {
 		return MIN;
 	}
 	
-	//Degree Distribution Algorithms
+	/** 
+	 * Degree Distribution Algorithms
+	 * @return int[]
+	 */
 	public int[] degreeDist() {
 		return degreeDistribution(graph);
 	}
 	
-	//Degree Distribution Average- returns the average degree
+	/**
+	 * Degree Distribution Average- returns the average degree
+	 * @return double
+	 */
 	public double avgDegree() {
 		return averageDegree(graph);
 	}
 	
+	/**
+	 * returns the average deviation
+	 * @return double
+	 */
 	public double degreeAVGDeviation() {
 		return degreeAverageDeviation(graph);
 	}
 	
-	//returns the number of links in the graph
+	/** 
+	 * returns the number of links in the graph
+	 * @return double
+	 */
 	public double graphDensity() {
 		return density(graph);
 	}
 
-	//computes the diameter of the graph
+	/** 
+	 * computes the diameter of the graph
+	 * @return double
+	 */
 	public double graphDiameter() {
 		return diameter(graph);
 	}
 	
-	//return the clustering coefficient of each node of the graph
+	/**
+	 * return the clustering coefficient of each node of the graph
+	 * @return double[]
+	 */
 	public double[] clusteringCoeff() {
 		return clusteringCoefficients(graph);
 	}
 	
-	//return the average clustering coefficient for the graph
+	/** 
+	 * return the average clustering coefficient for the graph
+	 * @return double
+	 */
 	public double AVGClusteringCoeff() {
 		return averageClusteringCoefficient(graph);
 	}
 	
-	//return number of component
+	/**
+	 * return number of component
+	 * @return int
+	 */
 	public int getComponent() {
 		ConnectedComponents cc = new ConnectedComponents();
 		cc.init(graph);
 		return cc.getConnectedComponentsCount();
 	}
 	
-	//the biggest connected component
+	/**
+	 * the biggest connected component
+	 */
 	public void getGiantComponent() {
 		ConnectedComponents cc = new ConnectedComponents();
 		cc.init(graph);
@@ -257,21 +329,30 @@ public class ViewGraph {
 		}
 	}
 	
-	//return the biggest connected component
+	/** 
+	 * return the biggest connected component
+	 * @return List<Node>
+	 */
 	public List<Node> getGiantComponentToList() {
 		ConnectedComponents cc = new ConnectedComponents();
 		cc.init(graph);
 		return cc.getGiantComponent();
 	}
 	
-	// return the biggest component number
+	/**
+	 *  return the biggest component number
+	 * @return int
+	 */
 	public int getGiantComponentNumber() {
 		ConnectedComponents cc = new ConnectedComponents();
 		cc.init(graph);
 		return cc.getGiantComponent().size();
 	}
 	
-	
+	/**
+	 * write statistics to file
+	 * @param filename
+	 */
 	public void writeCSV(String filename) {
 		String outputFile = filename;
 		

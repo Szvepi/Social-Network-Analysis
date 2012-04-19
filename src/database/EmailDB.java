@@ -6,23 +6,51 @@ import java.util.Date;
 
 import pstReader.PSTReader;
 
+/**
+ * This class create the new database and upload email's data.
+ *
+ * @version  0.4
+ * @author   Istvan Fodor
+ */
 public class EmailDB {
 	private String USER = "username";
 	private String PASS = "password";
 	private static int id = 0;
 	private String strUrl = "jdbc:derby:Graph";
+	private boolean exist = false;
 	   
 	Connection dbConnection = null;
 	
+	/**
+	 * If the database is not exist, It is create it, then it insert data.
+	 * @param emailList
+	 */
 	public EmailDB(PSTReader emailList) {
+		
+		Properties props2 = new Properties();
+		Properties props = new Properties();
+		props.put("user", USER);
+		props.put("password", PASS);
+		
 		try {
 			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
-						
-			Properties props = new Properties();
-			props.put("create", "true");
-			props.put("user", USER);
-			props.put("password", PASS);
+			
+			dbConnection = DriverManager.getConnection(strUrl, props);
 
+		} catch (SQLException e) {
+			System.out.println("SQL Hiba:");
+			e.printStackTrace();
+		} catch ( ClassNotFoundException e ) {
+			System.out.println("ClassNotFound Hiba:");
+			e.printStackTrace();
+		} finally {
+			props2.put("create", "true");
+			props2.put("user", USER);
+			props2.put("password", PASS);
+		}
+		
+		try {
+			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");			
 			dbConnection = DriverManager.getConnection(strUrl, props);
 			createTable();
 			insertData(emailList);
@@ -43,6 +71,9 @@ public class EmailDB {
 		}
 	}
 	
+	/**
+	 * This function create the new table
+	 */
 	private void createTable() {
 		Statement statement = null;
 		String dropTable = "Drop table EMAILS";
@@ -73,6 +104,10 @@ public class EmailDB {
 		}
 	}
 	
+	/**
+	 * This function insert data to table
+	 * @param List
+	 */
 	private void insertData(PSTReader List) {
 		Statement statement = null;
 			
@@ -110,6 +145,9 @@ public class EmailDB {
 		
 	}
 	
+	/**
+	 * This function retrieves data from database and print to consol
+	 */
 	public void selectData() {
 		Connection conn = null;
 		Statement statement = null;
@@ -158,5 +196,80 @@ public class EmailDB {
 		      }catch(SQLException se2){
 		      }// nothing we can do
 		}
+	}
+	
+	/**
+	 * Get all data from table
+	 * @return Vector<Object>
+	 */
+	public Vector<Object> getData() {
+		Connection conn = null;
+		Statement statement = null;
+		Vector<Object> datas = new Vector<Object>();
+		
+		
+		Properties props = new Properties();
+		props.put("create", "true");
+		props.put("user", USER);
+		props.put("password", PASS);
+		
+		try {
+			conn = DriverManager.getConnection(strUrl, props);
+			
+			statement = conn.createStatement();
+			
+			ResultSet rs = statement.executeQuery("SELECT * FROM Emails");
+			int i=0;
+			while (rs.next()) {
+				int p = rs.getInt(1);
+				String q = rs.getString(2);
+				String k = rs.getString(3);
+				String l = rs.getString(4);
+				String m = rs.getString(5);
+				String n = rs.getString(6);
+				String date = rs.getString(7);
+				datas.add(p);
+				datas.add(q);
+				datas.add(k);
+				datas.add(l);
+				datas.add(m);
+				datas.add(n);
+				datas.add(date);
+				i++;
+			}
+			if (statement!=null) {
+				statement.close();
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Hiba:");
+			e.printStackTrace();
+		} catch ( Exception e ) {
+			System.out.println("ClassNotFound Hiba:");
+			e.printStackTrace();
+		} finally{
+		      //finally block used to close resources
+		      try{
+		         if(conn!=null)
+		        	 conn.close();
+		      }catch(SQLException se2){
+		      }// nothing we can do
+		}
+		return datas;
+	}
+	
+	/**
+	 * Get the table's column name
+	 * @return Vector<String>
+	 */
+	public Vector<String> getColumnName() {
+		Vector <String> columnName = new Vector<String>();
+		columnName.add("id");
+		columnName.add("senderEmail");
+		columnName.add("senderName");
+		columnName.add("receiverEmail");
+		columnName.add("receiverName");
+		columnName.add("emailSubject");
+		columnName.add("sendingTime");
+		return columnName;
 	}
 }

@@ -3,7 +3,6 @@ import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.*;
-import org.pushingpixels.substance.api.skin.*;
 
 import database.EmailDB;
 import Graph.ViewGraph;
@@ -11,12 +10,11 @@ import Graph.ViewGraph;
 public class Main {
 
 	/**
+	 * Set the look and Feel and initialized MainWindow.
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-
-		
 		try {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {
