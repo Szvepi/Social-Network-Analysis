@@ -1,5 +1,13 @@
 package database;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.FileWriter;
+
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -13,11 +21,12 @@ import pstReader.PSTReader;
  * @author   Istvan Fodor
  */
 public class EmailDB {
+	static final Logger logger = Logger.getLogger(EmailDB.class);
+	
 	private String USER = "username";
 	private String PASS = "password";
 	private static int id = 0;
 	private String strUrl = "jdbc:derby:Graph";
-	private boolean exist = false;
 	   
 	Connection dbConnection = null;
 	
@@ -26,6 +35,7 @@ public class EmailDB {
 	 * @param emailList
 	 */
 	public EmailDB(PSTReader emailList) {
+		BasicConfigurator.configure();
 		
 		Properties props2 = new Properties();
 		Properties props = new Properties();
@@ -38,11 +48,12 @@ public class EmailDB {
 			dbConnection = DriverManager.getConnection(strUrl, props);
 
 		} catch (SQLException e) {
-			System.out.println("SQL Hiba:");
-			e.printStackTrace();
+			//System.out.println("SQL Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch ( ClassNotFoundException e ) {
-			System.out.println("ClassNotFound Hiba:");
-			e.printStackTrace();
+			//System.out.println("ClassNotFound Hiba:");
+			logger.error(e.getMessage());
 		} finally {
 			props2.put("create", "true");
 			props2.put("user", USER);
@@ -56,17 +67,78 @@ public class EmailDB {
 			insertData(emailList);
 			selectData();
 		} catch (SQLException e) {
-			System.out.println("SQL Hiba:");
-			e.printStackTrace();
+			//System.out.println("SQL Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch ( ClassNotFoundException e ) {
-			System.out.println("ClassNotFound Hiba:");
-			e.printStackTrace();
+			//System.out.println("ClassNotFound Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally{
 		      //finally block used to close resources
 		      try{
 		         if(dbConnection!=null)
 		        	 dbConnection.close();
 		      }catch(SQLException se2){
+		    	  logger.error(se2.getMessage());
+		      }// nothing we can do
+		}
+	}
+	
+	/**
+	 * If the database is not exist, It is create it, then it insert data.
+	 * It filters data.
+	 * @param emailList
+	 */
+	public EmailDB(PSTReader emailList, Date from, Date to) {
+		
+		Properties props2 = new Properties();
+		Properties props = new Properties();
+		props.put("user", USER);
+		props.put("password", PASS);
+		
+		try {
+			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
+			
+			dbConnection = DriverManager.getConnection(strUrl, props);
+
+		} catch (SQLException e) {
+			//System.out.println("SQL Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
+		} catch ( ClassNotFoundException e ) {
+			//System.out.println("ClassNotFound Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
+		} finally {
+			props2.put("create", "true");
+			props2.put("user", USER);
+			props2.put("password", PASS);
+		}
+		
+		try {
+			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");			
+			dbConnection = DriverManager.getConnection(strUrl, props);
+			if (from.before(to)) {
+				createTable();
+				insertData(emailList, from, to);
+				selectData();
+			}
+		} catch (SQLException e) {
+			//System.out.println("SQL Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
+		} catch ( ClassNotFoundException e ) {
+			//System.out.println("ClassNotFound Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
+		} finally{
+		      //finally block used to close resources
+		      try{
+		         if(dbConnection!=null)
+		        	 dbConnection.close();
+		      }catch(SQLException se2){
+		    	  logger.error(se2.getMessage());
 		      }// nothing we can do
 		}
 	}
@@ -99,8 +171,9 @@ public class EmailDB {
 				statement.close();
 			}
 		} catch (SQLException e ) {
-			System.out.println("SQL Hiba:");
-			e.printStackTrace();
+			//System.out.println("SQL Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 	
@@ -127,7 +200,7 @@ public class EmailDB {
 	        															"', '" + List.getSender(i) + 
 	        															"', '" + receiver.elementAt(j) + 
 	        															"', '" + recName.elementAt(j) + 
-	        															"', 'subject', " +
+	        															"', '"+ List.getSubject(i) +"', " +
 	        															"'" + time + "')";
 	        		statement.addBatch(strInsertTable);
 	        		++id;
@@ -139,10 +212,57 @@ public class EmailDB {
 				statement.close();
 			}
 		} catch (SQLException e ) {
-			System.out.println("SQL Hiba!");
+			//System.out.println("SQL Hiba!");
+			logger.error(e.getMessage());
 			//e.printStackTrace();
 		}
-		
+		id = 0;
+	}
+	
+	/**
+	 * This function insert data to table
+	 * @param List
+	 */
+	private void insertData(PSTReader List, Date from, Date to) {
+		Statement statement = null;
+			
+		try {
+			statement = dbConnection.createStatement();
+			
+			for ( int i=0;i<List.listSize();i++) {
+				if (from.before(List.getTime(i))) {
+					if (List.getTime(i).before(to)) {
+						String time = List.getTime(i).getYear()+1900 + "-" + List.getTime(i).getMonth() + "-" +
+								List.getTime(i).getDay() + " " + List.getTime(i).getHours() + ":" + 
+								List.getTime(i).getMinutes() + ":" + List.getTime(i).getSeconds();
+						Vector<String> receiver = new Vector<String>();
+						Vector<String> recName = new Vector<String>();
+						receiver = List.getRecipient(i);
+						recName = List.getReceived(i);
+						for ( int j=0; j < receiver.size(); ++j) {
+							String strInsertTable = "insert into EMAILS values( " + id + ", '" + List.getSenderEmail(i) + 
+	        															"', '" + List.getSender(i) + 
+	        															"', '" + receiver.elementAt(j) + 
+	        															"', '" + recName.elementAt(j) + 
+	        															"', '"+ List.getSubject(i) +"', " +
+	        															"'" + time + "')";
+							statement.addBatch(strInsertTable);
+							++id;
+						}
+					}
+				}
+			}		
+			statement.executeBatch();
+
+			if (statement!=null) {
+				statement.close();
+			}
+		} catch (SQLException e ) {
+			//System.out.println("SQL Hiba!");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
+		}
+		id = 0;
 	}
 	
 	/**
@@ -183,17 +303,20 @@ public class EmailDB {
 				statement.close();
 			}
 		} catch (SQLException e) {
-			System.out.println("SQL Hiba:");
-			e.printStackTrace();
+			//System.out.println("SQL Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch ( Exception e ) {
-			System.out.println("ClassNotFound Hiba:");
-			e.printStackTrace();
+			//System.out.println("ClassNotFound Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally{
 		      //finally block used to close resources
 		      try{
 		         if(conn!=null)
 		        	 conn.close();
 		      }catch(SQLException se2){
+		    	  logger.error(se2.getMessage());
 		      }// nothing we can do
 		}
 	}
@@ -241,17 +364,20 @@ public class EmailDB {
 				statement.close();
 			}
 		} catch (SQLException e) {
-			System.out.println("SQL Hiba:");
-			e.printStackTrace();
+			//System.out.println("SQL Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} catch ( Exception e ) {
-			System.out.println("ClassNotFound Hiba:");
-			e.printStackTrace();
+			//System.out.println("ClassNotFound Hiba:");
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		} finally{
 		      //finally block used to close resources
 		      try{
 		         if(conn!=null)
 		        	 conn.close();
 		      }catch(SQLException se2){
+		    	  logger.error(se2.getMessage());
 		      }// nothing we can do
 		}
 		return datas;
@@ -271,5 +397,36 @@ public class EmailDB {
 		columnName.add("emailSubject");
 		columnName.add("sendingTime");
 		return columnName;
+	}
+	
+	/**
+	 * write data from database to file
+	 * @param fileName
+	 */
+	public void writeData(File fileName) {
+		PrintWriter pw;
+		try {
+			pw = new PrintWriter( new FileWriter(fileName) );
+			for ( int i=0; i< getData().size(); i++ ) {
+				if (i == 0) {
+					pw.print(getData().elementAt(i) + "     ");
+				}
+				else {				
+					if (i%7==6) {
+						pw.println(getData().elementAt(i));
+					}
+					else {
+						pw.print(getData().elementAt(i) + "     ");
+					}
+				}
+			}
+    		if (pw != null) {
+    			pw.close();
+    		}
+		} catch (IOException ioe) {
+			logger.error(ioe.getMessage());
+		} catch (Exception exc) {
+			logger.error(exc.getMessage());
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package Graph;
 
 import java.util.*;
-
 import java.io.*;
 
 import com.csvreader.CsvReader;
@@ -10,13 +9,15 @@ import com.csvreader.CsvWriter;
 import database.EmailDB;
 
 import static org.graphstream.algorithm.Toolkit.*;
-
 import org.graphstream.algorithm.BetweennessCentrality;
 import org.graphstream.algorithm.ConnectedComponents;
 import org.graphstream.graph.*;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.ui.j2dviewer.J2DGraphRenderer;
+
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
 
 import pstReader.*;
 
@@ -31,6 +32,8 @@ import pstReader.*;
 
 public class ViewGraph {
 	
+	static final Logger logger = Logger.getLogger(ViewGraph.class);
+	
 	private Graph graph;
 	private PSTReader email;
 	private EmailDB db;
@@ -44,6 +47,7 @@ public class ViewGraph {
 	 */
 	public ViewGraph(String file) {
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		BasicConfigurator.configure();
 		email = new PSTReader();	//hogyan tudom altalanositani, ne csak PSTReader-el mukodjon?
 		graph = new SingleGraph("Emails");
 		
@@ -51,22 +55,32 @@ public class ViewGraph {
 		graph.setAutoCreate(true);
         graph.setStrict(false);
         
-        addEdge();
-        setStyle();
-        
-        for (int i=1;i<graph.getNodeCount();i++) {
+	}
+	
+	/**
+	 * clear the graph's nodes and edges
+	 */
+	public void clear() {
+		if (graph.getNodeCount() > 0 ) {
+			graph.clear();
+		}
+	}
+	
+	/**
+	 * Set the networkCommunityDetectiont function
+	 */
+	public void setNetworkComDet() {
+		for (int i=1;i<graph.getNodeCount();i++) {
         	if ( graph.getNode(i).getAttribute("ui.color") != "true" && graph.getNode(i).getDegree() > 2 ) {
         		networkCommunityDetectiont(i);
         	}
         }
-        
-        db = new EmailDB(email);
 	}
 	
 	/**
 	 * add edge to graph
 	 */
-	private void addEdge() {
+	public void addEdge() {
 		for ( int i = 0; i < email.listSize(); i++) {
         	Vector<String> receiver = new Vector<String>();
         	Vector<String> recName = new Vector<String>();
@@ -84,11 +98,60 @@ public class ViewGraph {
         			graph.getNode(email.getSenderEmail(i)).addAttribute("ui.label", email.getSender(i));
         			graph.getNode(receiver.elementAt(j)).addAttribute("ui.label", recName.elementAt(j));
         		} catch (IdAlreadyInUseException e) {
-        			e.printStackTrace();
+        			//e.printStackTrace();
+        			logger.error(e.getMessage());
         		}
         	}
         	
         }
+		setStyle();
+		setNetworkComDet();
+		db = new EmailDB(email);
+		db.writeData(new File("alma"));
+	}
+	
+	/**
+	 * add edge to graph
+	 */
+	public void addEdge(Date from, Date to) {
+		if (graph.getNodeCount() > 0) {
+			graph.clear();
+		}
+		for ( int i = 0; i < email.listSize(); i++) {    	  	
+        	//System.out.println(date);
+        	if ( from.before(to) ) { 
+    			Date date = email.getTime(i);
+            	Vector<String> receiver = new Vector<String>();
+            	Vector<String> recName = new Vector<String>();
+            	receiver = email.getRecipient(i);
+            	recName = email.getReceived(i); 
+            	if (from.before(date)) {
+            		if (date.before(to)) {
+                		for ( int j=0; j < receiver.size(); ++j) {	
+                			String edgeName = email.getSenderEmail(i)+receiver.elementAt(j);
+                			//System.out.println(from.after(to));
+                		
+                			//add edges to graph
+                			try {
+                				graph.addEdge(edgeName, email.getSenderEmail(i), receiver.elementAt(j),true);
+                				graph.getNode(email.getSenderEmail(i)).addAttribute("ui.label", email.getSender(i));
+                				graph.getNode(receiver.elementAt(j)).addAttribute("ui.label", recName.elementAt(j));
+                			} catch (IdAlreadyInUseException e) {
+                				//e.printStackTrace();
+                				logger.error(e.getMessage());
+                			}
+                		}
+            		}
+            	}
+
+        	}
+        	else {
+        		System.out.println("A kezdeti datum nem lehet nagyobb mint a vege datum ");
+        	}
+        }
+		setStyle();
+		setNetworkComDet();
+		db = new EmailDB(email, from, to);
 	}
 	
 	/**
@@ -125,7 +188,6 @@ public class ViewGraph {
     		}
     	}
 	}
-
 	
 	/**
 	 * get the graph
@@ -171,7 +233,10 @@ public class ViewGraph {
 	}
 	
 	public void sleep() {
-        try { Thread.sleep(500); } catch (Exception e) {System.out.println(e.getMessage());}
+        try { Thread.sleep(500); } catch (Exception e) {
+        		//System.out.println(e.getMessage());
+        		logger.error(e.getMessage());
+        	}
     }
 	
 	/**
@@ -397,7 +462,8 @@ public class ViewGraph {
 			
 			csvOutput.close();
 		} catch (IOException e) {
-			e.printStackTrace();
+			//e.printStackTrace();
+			logger.error(e.getMessage());
 		}
 	}
 	

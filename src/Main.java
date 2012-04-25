@@ -4,17 +4,30 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.*;
 
-import database.EmailDB;
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
+
 import Graph.ViewGraph;
 
+
+/**
+ * Set the LookAndFeel and create new MainWindow type.
+ *
+ * @version  0.5
+ * @author   Istvan Fodor
+ */
+
 public class Main {
+	
+	static final Logger logger = Logger.getLogger(Main.class);
 
 	/**
-	 * Set the look and Feel and initialized MainWindow.
+	 * Initialized MainWindow.
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		BasicConfigurator.configure();
 		try {
 		    for (LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
 		        if ("Nimbus".equals(info.getName())) {
@@ -26,7 +39,7 @@ public class Main {
 		} catch (Exception e) {
 		    // If Nimbus is not available, you can set the GUI to another look and feel.
 			JFrame.setDefaultLookAndFeelDecorated(true);
-			
+			logger.error(e.getMessage());
 		}
 		
 		SwingUtilities.invokeLater(new Runnable() {
@@ -34,5 +47,6 @@ public class Main {
 		                  MainWindow main = new MainWindow();
 		              }
 		});
+		//MainWindow main = new MainWindow();
 	}
 }

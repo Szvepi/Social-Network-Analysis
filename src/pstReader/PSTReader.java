@@ -4,6 +4,9 @@ import java.util.*;
 
 import com.pff.*;
 
+import org.apache.log4j.Logger;
+import org.apache.log4j.BasicConfigurator;
+
 /**
  * Read datas from .pst file.
  *
@@ -11,6 +14,7 @@ import com.pff.*;
  * @author   Istvan Fodor
  */
 public class PSTReader extends Reader {
+		static final Logger logger = Logger.getLogger(PSTReader.class);
 	
 		private PSTFile pstFile;
 		private List<PSTMessage> emails;
@@ -21,6 +25,7 @@ public class PSTReader extends Reader {
 		 */
 		public PSTReader() {
 			emails = new ArrayList<PSTMessage>();
+			BasicConfigurator.configure();
 		}
 	
 		/** 
