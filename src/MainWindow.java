@@ -68,6 +68,7 @@ public class MainWindow extends JFrame {
 	private JMenuItem createPicMenu;
 	private JMenuItem exportStatMenu;
 	private JMenuItem openMenu;
+	private JMenuItem exportData;
 	private JFileChooser fc;
 	private JPanel leftPanel;
 	private JPanel rightPanel;
@@ -80,7 +81,6 @@ public class MainWindow extends JFrame {
 	private GridLayout subGrid;
 	private GridLayout statisticsGrid;
 	private GridLayout calendarGrid;
-	private FlowLayout flowLayout;
 	private JTabbedPane tab;
 	private JLabel numberOfNodes;
 	private JLabel numberOfEdges;
@@ -93,8 +93,6 @@ public class MainWindow extends JFrame {
 	private JLabel AVGClusteringCoefficient;
 	private JLabel ComponentNumber;
 	private JLabel BiggestComponentNumber;
-	private JLabel fromLabel;
-	private JLabel toLabel;
 	private List<JLabel> labels;
 	private JTable table;
 	private JCalendar toCalendar;
@@ -132,10 +130,12 @@ public class MainWindow extends JFrame {
 		aboutMenu = new JMenuItem("About");
 		createPicMenu = new JMenuItem("Create Picture");
 		exportStatMenu = new JMenuItem("Export Statistics");
+		exportData = new JMenuItem("Export email's details");
 		
 		saveMenu.setEnabled(false);
 		createPicMenu.setEnabled(false);
 		exportStatMenu.setEnabled(false);
+		exportData.setEnabled(false);
 		
 		toCalendar = new JCalendar();
 		fromCalendar = new JCalendar();
@@ -146,7 +146,7 @@ public class MainWindow extends JFrame {
 		subGrid = new GridLayout(2,1);
 		statisticsGrid = new GridLayout(11,2);
 		calendarGrid = new GridLayout(2,2);
-		flowLayout = new FlowLayout();
+		//flowLayout = new FlowLayout();
 		
 		labels = new ArrayList<JLabel>();
 		
@@ -154,6 +154,7 @@ public class MainWindow extends JFrame {
 		fileMenu.add(saveMenu);
 		fileMenu.add(createPicMenu);
 		fileMenu.add(exportStatMenu);
+		fileMenu.add(exportData);
 		fileMenu.add(exitMenu);
 		helpMenu.add(aboutMenu);
 		menuBar.add(fileMenu);
@@ -185,9 +186,7 @@ public class MainWindow extends JFrame {
 		cancelPanel.add(new JPanel());
 		cancelPanel.add(new JPanel());
 		cancelPanel.add(new JPanel());
-		
-		fromLabel = new JLabel("From:");
-		toLabel = new JLabel("To:");
+
 		
 		//set the statistics labels
 		numberOfNodes = new JLabel("    Number of nodes:");
@@ -254,6 +253,7 @@ public class MainWindow extends JFrame {
 					saveMenu.setEnabled(true);
 					createPicMenu.setEnabled(true);
 					exportStatMenu.setEnabled(true);
+					exportData.setEnabled(true);
 					
 					viewGraph = new ViewGraph(mainFile.getAbsolutePath());
 					viewGraph.addEdge();
@@ -312,6 +312,21 @@ public class MainWindow extends JFrame {
 					File file = fc.getSelectedFile();
 					createPicture(file.getAbsolutePath());
 				} else {				
+				}
+			}
+		});
+		
+		/**
+		 * Export email's details to file
+		 */
+		exportData.addMouseListener(new MouseAdapter() {
+			@Override
+            public void mousePressed(MouseEvent e) {
+				fc = new JFileChooser();
+				int returnVal = fc.showDialog(mainFrame, "Export email's details");				
+				if (returnVal == JFileChooser.APPROVE_OPTION) {				
+					File file = fc.getSelectedFile();
+					viewGraph.getDB().writeData(file.getAbsoluteFile());
 				}
 			}
 		});

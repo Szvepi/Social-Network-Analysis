@@ -412,7 +412,7 @@ public class EmailDB {
 					pw.print(getData().elementAt(i) + "     ");
 				}
 				else {				
-					if (i%7==6) {
+					if (i%7 == 6) {
 						pw.println(getData().elementAt(i));
 					}
 					else {
