@@ -3,6 +3,8 @@ package Graph;
 import java.util.*;
 import java.io.*;
 
+import javax.swing.JOptionPane;
+
 import com.csvreader.CsvReader;
 import com.csvreader.CsvWriter;
 
@@ -37,8 +39,9 @@ public class ViewGraph {
 	private Graph graph;
 	private PSTReader email;
 	private EmailDB db;
-	private boolean stepByStep = true;
 	private Random numGen = new Random();
+	private Date startDate;
+	private Date endDate;
 	
 	/**
 	 * Initialized new PSTReader, SingleGraph.
@@ -49,20 +52,26 @@ public class ViewGraph {
 		System.setProperty("gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer");
 		BasicConfigurator.configure();
 		email = new PSTReader();	//hogyan tudom altalanositani, ne csak PSTReader-el mukodjon?
-		graph = new SingleGraph("Emails");
+		//graph = new SingleGraph("Emails");
 		
 		email.read(file);
-		graph.setAutoCreate(true);
-        graph.setStrict(false);
-        
+		//graph.setAutoCreate(true);
+        //graph.setStrict(false);
+        //System.out.println(email.getStartDate());
 	}
 	
 	/**
 	 * clear the graph's nodes and edges
 	 */
 	public void clear() {
-		if (graph.getNodeCount() > 0 ) {
+		/*if (graph.getNodeCount() > 0 ) {
 			graph.clear();
+		}*/
+		for ( int i = 0; i < graph.getEdgeCount(); i++) {
+			graph.removeEdge(i);
+		}
+		for ( int i=0; i< graph.getNodeCount(); i++) {
+			graph.removeNode(i);
 		}
 	}
 	
@@ -81,6 +90,9 @@ public class ViewGraph {
 	 * add edge to graph
 	 */
 	public void addEdge() {
+		graph = new SingleGraph("Emails");
+		graph.setAutoCreate(true);
+        graph.setStrict(false);
 		for ( int i = 0; i < email.listSize(); i++) {
         	Vector<String> receiver = new Vector<String>();
         	Vector<String> recName = new Vector<String>();
@@ -114,9 +126,10 @@ public class ViewGraph {
 	 * add edge to graph
 	 */
 	public void addEdge(Date from, Date to) {
-		if (graph.getNodeCount() > 0) {
-			graph.clear();
-		}
+		//clear();
+		graph = new SingleGraph("Emails");
+		graph.setAutoCreate(true);
+        graph.setStrict(false);
 		for ( int i = 0; i < email.listSize(); i++) {    	  	
         	//System.out.println(date);
         	if ( from.before(to) ) { 
@@ -146,7 +159,8 @@ public class ViewGraph {
 
         	}
         	else {
-        		System.out.println("A kezdeti datum nem lehet nagyobb mint a vege datum ");
+        		//JOptionPane.showMessageDialog(null, "The end date must be higher than start date!");
+        		//System.out.println("A kezdeti datum nem lehet nagyobb mint a vege datum ");
         	}
         }
 		setStyle();
@@ -232,6 +246,9 @@ public class ViewGraph {
 		graph.addAttribute("ui.stylesheet", styleSheet);
 	}
 	
+	/**
+	 * sleep 0-5 second
+	 */
 	public void sleep() {
         try { Thread.sleep(500); } catch (Exception e) {
         		//System.out.println(e.getMessage());
@@ -410,8 +427,12 @@ public class ViewGraph {
 	 */
 	public int getGiantComponentNumber() {
 		ConnectedComponents cc = new ConnectedComponents();
-		cc.init(graph);
-		return cc.getGiantComponent().size();
+		if (graph.getNodeCount() > 0) {
+			cc.init(graph);
+			return cc.getGiantComponent().size();
+		} else {
+			return 0;
+		}
 	}
 	
 	/**
@@ -465,6 +486,22 @@ public class ViewGraph {
 			//e.printStackTrace();
 			logger.error(e.getMessage());
 		}
+	}
+	
+	/**
+	 * 
+	 * @return The earliest email delivery time.
+	 */
+	public Date getStartDate() {
+		return email.getStartDate();
+	}
+	
+	/**
+	 * 
+	 * @return The latest email delivery time.
+	 */
+	public Date getEndDate() {
+		return email.getEndDate();
 	}
 	
 }

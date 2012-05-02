@@ -41,6 +41,9 @@ public class EmailDB {
 		Properties props = new Properties();
 		props.put("user", USER);
 		props.put("password", PASS);
+		props.put("useUnicode", "true");
+		props.put("characterEncoding", "utf8");
+		props.put("characterSetResults", "utf8");
 		
 		try {
 			Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
@@ -213,7 +216,7 @@ public class EmailDB {
 			}
 		} catch (SQLException e ) {
 			//System.out.println("SQL Hiba!");
-			logger.error(e.getMessage());
+			//logger.error(e.getMessage());
 			//e.printStackTrace();
 		}
 		id = 0;
@@ -317,7 +320,7 @@ public class EmailDB {
 		        	 conn.close();
 		      }catch(SQLException se2){
 		    	  logger.error(se2.getMessage());
-		      }// nothing we can do
+		      }
 		}
 	}
 	
@@ -329,8 +332,7 @@ public class EmailDB {
 		Connection conn = null;
 		Statement statement = null;
 		Vector<Object> datas = new Vector<Object>();
-		
-		
+			
 		Properties props = new Properties();
 		props.put("create", "true");
 		props.put("user", USER);
@@ -342,7 +344,7 @@ public class EmailDB {
 			statement = conn.createStatement();
 			
 			ResultSet rs = statement.executeQuery("SELECT * FROM Emails");
-			int i=0;
+
 			while (rs.next()) {
 				int p = rs.getInt(1);
 				String q = rs.getString(2);
@@ -358,7 +360,6 @@ public class EmailDB {
 				datas.add(m);
 				datas.add(n);
 				datas.add(date);
-				i++;
 			}
 			if (statement!=null) {
 				statement.close();
@@ -378,8 +379,9 @@ public class EmailDB {
 		        	 conn.close();
 		      }catch(SQLException se2){
 		    	  logger.error(se2.getMessage());
-		      }// nothing we can do
+		      }
 		}
+		//System.out.println("size:" + datas.size());
 		return datas;
 	}
 	

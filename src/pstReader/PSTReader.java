@@ -38,7 +38,8 @@ public class PSTReader extends Reader {
 					processFolder(pstFile.getRootFolder());
 				}
 			} catch (Exception err) {
-				err.printStackTrace();
+				//err.printStackTrace();
+				logger.error(err.getMessage());
 			}
 		}
 		
@@ -51,7 +52,8 @@ public class PSTReader extends Reader {
 				pstFile = new PSTFile(fileName);
 				processFolder(pstFile.getRootFolder());
 			} catch (Exception err) {
-				err.printStackTrace();
+				//err.printStackTrace();
+				logger.error(err.getMessage());
 			}
 		}
 			
@@ -90,8 +92,9 @@ public class PSTReader extends Reader {
 				
 			} catch (Exception e)
 			{
-				System.out.println("Hiba a getReceived-nél");
-				e.printStackTrace();
+				//System.out.println("Hiba a getReceived-nél");
+				//e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			return cimzettek;
 		}
@@ -142,8 +145,9 @@ public class PSTReader extends Reader {
 				}
 				
 			} catch (Exception e) {
-				System.out.println("Hiba a getRecipient-nél");
-				e.printStackTrace();
+				//System.out.println("Hiba a getRecipient-nél");
+				//e.printStackTrace();
+				logger.error(e.getMessage());
 			}
 			return cimzettek;
 		}
@@ -174,10 +178,40 @@ public class PSTReader extends Reader {
 				}
 			}
 			} catch (PSTException PstEx) {
-				PstEx.printStackTrace();
+				//PstEx.printStackTrace();
+				logger.error(PstEx.getMessage());
 			} catch (java.io.IOException IOEx) {
-				IOEx.printStackTrace();
+				//IOEx.printStackTrace();
+				logger.error(IOEx.getMessage());
 			}
+		}
+		
+		/**
+		 * 
+		 * @return The earliest email delivery time.
+		 */
+		public Date getStartDate() {
+			Date startDate = getTime(0);
+			for ( int i = 1; i < listSize(); i++) {
+				if (startDate.after(getTime(i))) {
+					startDate = getTime(i);
+				}
+			}
+			return startDate;
+		}
+		
+		/**
+		 * 
+		 * @return The latest email delivery time.
+		 */
+		public Date getEndDate() {
+			Date endDate = getTime(0);
+			for ( int i = 1; i < listSize(); i++) {
+				if (endDate.before(getTime(i))) {
+					endDate = getTime(i);
+				}
+			}
+			return endDate;
 		}
 
 }
